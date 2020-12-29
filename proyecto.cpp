@@ -35,8 +35,8 @@ struct Sesiones{
 	Peliculas *pCabPeli=NULL;
 	Peliculas *pFinPeli=NULL;
 
-	Sesiones *sgteSala;
-	Sesiones *anteSala;
+	Sesiones *sgteSes;
+	Sesiones *anteSes;
 };
 
 struct Salas{
@@ -44,6 +44,8 @@ struct Salas{
 	string nomSala;
 	string diaSala;
 	string categoriaSala; // si es en 3D o normal
+	Sesiones *pCabSes=NULL;
+	Sesiones *pFinSes=NULL;
 
 	Salas *sgteSala;
 	Salas *anteSala;
@@ -53,8 +55,6 @@ struct Cine{
 	string codCine;
 	string nomCine;
 	string direccionCine;
-	Sesiones *pCabSes=NULL;
-	Sesiones *pFinSes=NULL;
 	Salas *pCabSalas=NULL;
 	Salas *pFinSalas=NULL;
 
@@ -68,6 +68,10 @@ int menuRegistro();
 void registroCine(Cine *&pCabCine,Cine *&pFinCine);
 void listarCine(Cine *pCabCine);
 Cine *fun_buscarCine(Cine *pCabCine,string codigo);
+Sesiones *fun_buscarSes(Sesiones *pCabSes,string codigo);
+void registroSalas(Salas *&pCabSalas,Salas *&pFinSalas);
+void MostrarCine(Cine *pCabCine);
+Salas *fun_buscarSala(Salas *pCabSala,string codigo);
 
 int main(){
     setlocale(LC_CTYPE,"spanish");
@@ -113,6 +117,10 @@ return op;
 }
 
 void operaciones(int op,Cine *&pCabCine,Cine *&pFinCine){
+	Cine *dirNodo=NULL,*dirNodoAnt=NULL ;
+    Salas *dirSala=NULL, *aux1=NULL;
+    Sesiones *dirSesion=NULL;
+	Peliculas *dirPeli=NULL;
 	Cine *dirEliminar, *aux=NULL;
 	int resp;
 	string dato;
@@ -150,19 +158,27 @@ void operaciones(int op,Cine *&pCabCine,Cine *&pFinCine){
 			resp=menuRegistro();
 			switch(resp){
 				case 1:
-					
+					int res;
+					cout<<"CODIGO DEL CINE:";
+					cin>>dato;
+					MostrarCine(pCabCine);
+					dirNodo=fun_buscarCine(pCabCine,dato);
+					registroSalas(dirNodo->pCabSalas,dirNodo->pFinSalas);	
+					fflush(stdin);
 					break;
 				case 2:
 					cout<<"INGRESE EL SUCURSAL A MODIFICAR: "<<endl;
 					cin>>dato;
-					//aux = fun_buscarCine(pCabCine,dato);
-					if(aux==NULL){
+					aux1 = fun_buscarSala(dirNodo->pCabSalas,dato);
+					if(aux1==NULL){
 						cout<<"El numero a modificar no existe en la lista"<<endl;
 					}else{
 						cout<<"INGRESE EL NOMBRE NUEVO: ";
-						//cin>>aux->nomCine;
-						cout<<"INGRESE LA DIRECCION NUEVO: ";
-						//cin>>aux->direccionCine;
+						cin>>aux1->nomSala;
+						cout<<"INGRESE DIA DE LA FUNCION NUEVO: ";
+						cin>>aux1->diaSala;
+						cout<<"INGRESE CATEGORIA DE SALA NUEVO: ";
+						cin>>aux1->categoriaSala;
 					}
 					break;
 				case 3:
@@ -239,10 +255,67 @@ void registroCine(Cine *&pCabCine,Cine *&pFinCine){
 		pFinCine=newNodo;
 }
 
+void MostrarCine(Cine *pCabCine){
+	Cine *pActual=pCabCine;
+	while(pActual!=NULL){
+		cout<<"Codigo Provincia: "<<pActual->nomCine<<endl;
+		cout<<"Nompre provincia: "<<pActual->direccionCine<<endl;
+		pActual=pActual->sgteCine;
+	}
+}
+
+void registroSalas(Salas *&pCabSalas,Salas *&pFinSalas){
+	Salas *newNodo = new(Salas);
+	//lectura de los datos
+	cout<<"         |     DATOS DEL SALA    |         "<<endl;
+	cout<<"Ingrese el código Sala: ";
+	cin>>newNodo->codSala;
+	cout<<"Ingrese el nombre Sala: ";
+	fflush(stdin); getline(cin,newNodo->nomSala);
+	cout<<"Ingrese la Dia de la Funcion: ";
+	fflush(stdin); getline(cin,newNodo->diaSala);
+	cout<<"Ingrese los catrgoria en 3D o Normal: ";
+	fflush(stdin); getline(cin,newNodo->categoriaSala);
+	//crear el nodoProducto
+	newNodo->sgteSala=NULL;
+	newNodo->anteSala=NULL;	
+		if(pCabSalas==NULL){
+			pCabSalas=newNodo;		
+		}else{
+		     pFinSalas->sgteSala=newNodo;
+		     newNodo->anteSala=pFinSalas;
+		}	
+		pFinSalas=newNodo;
+}
+
+void registroSesiones(Sesiones *&pCabSes,Sesiones *&pFinSes){
+	Sesiones *newNodo = new(Sesiones);
+	//lectura de los datos
+	cout<<"         |     DATOS DEL SESIONES    |         "<<endl;
+	cout<<"Ingrese el código Sesiones: ";
+	cin>>newNodo->codSes;
+	cout<<"Ingrese el nombre Sesiones: ";
+	fflush(stdin); getline(cin,newNodo->nomSes);
+	cout<<"Ingrese la Hora de Funcion:";
+	fflush(stdin); getline(cin,newNodo->horaSes);
+	cout<<"Ingrese los catrgoria al publico:";
+	fflush(stdin); getline(cin,newNodo->calificacion);
+	//crear el nodoProducto
+	newNodo->sgteSes=NULL;
+	newNodo->anteSes=NULL;	
+		if(pCabSes==NULL){
+			pCabSes=newNodo;		
+		}else{
+		     pFinSes->sgteSes=newNodo;
+		     newNodo->anteSes=pFinSes;
+		}	
+		pFinSes=newNodo;
+}
+
 void registroPeliculas(Peliculas *&pCabPeli,Peliculas *&pFinPeli){
 	Peliculas *newNodo = new(Peliculas);
 	//lectura de los datos
-	cout<<"         |     DATOS DEL CINE    |         "<<endl;
+	cout<<"         |     DATOS DEL PELICULAS    |         "<<endl;
 	cout<<"Ingrese el código Pelicula: ";
 	cin>>newNodo->codPeli;
 	cout<<"Ingrese el nombre Pelicula: ";
@@ -287,3 +360,26 @@ Cine *fun_buscarCine(Cine *pCabCine,string codigo){
 	return NULL;
 }
 
+Salas *fun_buscarSala(Salas *pCabSala,string codigo){
+	Salas *pActual=pCabSala;
+	while(pActual!=NULL){
+          if(pActual->codSala==codigo){
+          	return pActual;
+		  }
+		//alterar bucle
+		pActual=pActual->sgteSala;		
+	}	
+	return NULL;
+}
+
+Sesiones *fun_buscarSes(Sesiones *pCabSes,string codigo){
+	Sesiones *pActual=pCabSes;
+	while(pActual!=NULL){
+          if(pActual->codSes==codigo){
+          	return pActual;
+		  }
+		//alterar bucle
+		pActual=pActual->sgteSes;		
+	}	
+	return NULL;
+}
